@@ -317,14 +317,14 @@ func TestCloneRate(t *testing.T) {
 }
 
 func TestCloneInfluxDBTags(t *testing.T) {
-	testOutput(t, "test_key,tag1=value1,tag2=value2:5|c", func(c *Client) {
+	testOutput(t, "test_key,tag1=value3,tag2=value2:5|c", func(c *Client) {
 		clone := c.Clone(Tags("tag1", "value3", "tag2", "value2"))
 		clone.Count(testKey, 5)
 	}, TagsFormat(InfluxDB), Tags("tag1", "value1"))
 }
 
 func TestCloneDatadogTags(t *testing.T) {
-	testOutput(t, "test_key:5|c|#tag1:value1,tag2:value2", func(c *Client) {
+	testOutput(t, "test_key:5|c|#tag1:value3,tag2:value2", func(c *Client) {
 		clone := c.Clone(Tags("tag1", "value3", "tag2", "value2"))
 		clone.Count(testKey, 5)
 	}, TagsFormat(Datadog), Tags("tag1", "value1"))
@@ -336,10 +336,7 @@ func TestDialError(t *testing.T) {
 	}
 	defer func() { dialTimeout = net.DialTimeout }()
 
-	c, err := New()
-	if c == nil || !c.muted {
-		t.Error("New() did not return a muted client")
-	}
+	_, err := New()
 	if err == nil {
 		t.Error("New() did not return an error")
 	}
@@ -364,11 +361,11 @@ func TestUDPNotListening(t *testing.T) {
 	defer func() { dialTimeout = net.DialTimeout }()
 
 	c, err := New()
-	if c == nil || !c.muted {
-		t.Error("New() did not return a muted client")
+	if c.muted {
+		t.Error("client should not mute")
 	}
-	if err == nil {
-		t.Error("New should return an error")
+	if err != nil {
+		t.Error("client with non-listening port should not error")
 	}
 }
 
