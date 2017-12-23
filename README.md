@@ -29,7 +29,9 @@ https://godoc.org/github.com/AstromechZA/go-statsd
 
 ## Download
 
-    go get github.com/AstromechZA/statsd
+```
+$ go get github.com/AstromechZA/go-statsd
+```
 
 ## License
 
