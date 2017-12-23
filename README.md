@@ -19,6 +19,10 @@ client.
 - 100% test coverage
 - An annoying hyphen in the name
 
+## Usage
+
+The basic usage can be very simple, see [example_test](./example_test.go). The documentation illustrates the more complex API methods and options.
+
 ## Documentation
 
 https://godoc.org/github.com/AstromechZA/go-statsd
