@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	testAddr = ":0"
+	testAddr = "127.0.0.1:0"
 	testKey  = "test_key"
 )
 
