@@ -1,6 +1,8 @@
 # statsd
 [![Build Status](https://travis-ci.org/alexcesaro/statsd.svg?branch=v2)](https://travis-ci.org/alexcesaro/statsd) [![Code Coverage](http://gocover.io/_badge/gopkg.in/alexcesaro/statsd.v2)](http://gocover.io/gopkg.in/alexcesaro/statsd.v2) [![Documentation](https://godoc.org/gopkg.in/alexcesaro/statsd.v2?status.svg)](https://godoc.org/gopkg.in/alexcesaro/statsd.v2)
 
+> Forked from https://github.com/alexcesaro/statsd on 2017-12-23 to add some missing bits.
+
 ## Introduction
 
 statsd is a simple and efficient [Statsd](https://github.com/etsy/statsd)
