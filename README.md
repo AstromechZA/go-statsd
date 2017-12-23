@@ -1,7 +1,8 @@
 # statsd
 [![Build Status](https://travis-ci.org/AstromechZA/statsd.svg)](https://travis-ci.org/AstromechZA/statsd) [![Code Coverage](http://gocover.io/_badge/gopkg.in/AstromechZA/statsd)](http://gocover.io/gopkg.in/AstromechZA/statsd) [![Documentation](https://godoc.org/gopkg.in/AstromechZA/statsd?status.svg)](https://godoc.org/gopkg.in/AstromechZA/statsd)
 
-> Forked from https://github.com/alexcesaro/statsd on 2017-12-23 to add some missing bits. Mostly just fixing some of the filed issues, and merging some PR code.
+> Forked from https://github.com/alexcesaro/statsd on 2017-12-23 to add some missing bits. Mostly just fixing some of the filed issues, and merging some PR code. The upstream project is non-maintained and can be considered dead.
+> For my own sake, I removed some of the gopkg branch anchors to reduce complexity.
 
 ## Introduction
 
