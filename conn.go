@@ -40,15 +40,15 @@ func newConn(conf connConfig, muted bool) (*conn, error) {
 		return c, nil
 	}
 
+	// To prevent a buffer overflow add some capacity to the buffer to allow for
+	// an additional metric.
+	c.buf = make([]byte, 0, c.maxPacketSize+200)
+
 	var err error
 	c.w, err = dialTimeout(c.network, c.addr, 5*time.Second)
 	if err != nil {
 		return c, err
 	}
-
-	// To prevent a buffer overflow add some capacity to the buffer to allow for
-	// an additional metric.
-	c.buf = make([]byte, 0, c.maxPacketSize+200)
 
 	if c.flushPeriod > 0 {
 		go func() {

@@ -100,10 +100,13 @@ func (c *Client) Gauge(bucket string, value interface{}) {
 	c.conn.gauge(c.prefix, bucket, value, c.tags)
 }
 
-// Timing sends a timing value to a bucket.
+// Timing sends a milliseconds timing value to a bucket.
 func (c *Client) Timing(bucket string, value interface{}) {
 	if c.skip() {
 		return
+	}
+	if v, ok := value.(time.Duration); ok {
+		value = int64(v / time.Millisecond)
 	}
 	c.conn.metric(c.prefix, bucket, value, "ms", c.rate, c.tags)
 }
