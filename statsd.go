@@ -14,8 +14,8 @@ type Client struct {
 // DefaultFlashPeriod is how often the buffer is flushed
 const DefaultFlashPeriod = 100 * time.Millisecond
 
-// DefaultMaxPackageSize must match the network MTU : Ethernet MTU - IPv6 Header - TCP Header = 1500 - 40 - 20 = 1440
-const DefaultMaxPackageSize = 1440
+// DefaultMaxPackageSize must match the network MTU : Ethernet MTU - IPv6 Header - TCP Header
+const DefaultMaxPackageSize = 1500 - 40 - 20
 
 // DefaultAddress is the default statsd receiver
 const DefaultAddress = "localhost:8125"
