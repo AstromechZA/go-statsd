@@ -11,12 +11,15 @@ import (
 
 type conn struct {
 	// Fields settable with options at Client's creation.
-	addr          string
-	errorHandler  func(error)
-	flushPeriod   time.Duration
-	maxPacketSize int
-	network       string
-	tagFormat     TagFormat
+	addr                    string
+	errorHandler            func(error)
+	flushPeriod             time.Duration
+	maxPacketSize           int
+	network                 string
+	tagFormat               TagFormat
+	lazyConnect             bool
+	flushesBetweenReconnect int
+	flushCount              int
 
 	mu sync.Mutex
 	// Fields guarded by the mutex.
@@ -28,12 +31,14 @@ type conn struct {
 
 func newConn(conf connConfig, muted bool) (*conn, error) {
 	c := &conn{
-		addr:          conf.Addr,
-		errorHandler:  conf.ErrorHandler,
-		flushPeriod:   conf.FlushPeriod,
-		maxPacketSize: conf.MaxPacketSize,
-		network:       conf.Network,
-		tagFormat:     conf.TagFormat,
+		addr:                    conf.Addr,
+		errorHandler:            conf.ErrorHandler,
+		flushPeriod:             conf.FlushPeriod,
+		maxPacketSize:           conf.MaxPacketSize,
+		network:                 conf.Network,
+		tagFormat:               conf.TagFormat,
+		lazyConnect:             conf.LazyConnect,
+		flushesBetweenReconnect: conf.FlushesBetweenReconnect,
 	}
 
 	if muted {
@@ -44,10 +49,14 @@ func newConn(conf connConfig, muted bool) (*conn, error) {
 	// an additional metric.
 	c.buf = make([]byte, 0, c.maxPacketSize+200)
 
-	var err error
-	c.w, err = dialTimeout(c.network, c.addr, 5*time.Second)
-	if err != nil {
-		return c, err
+	// LazyConnect option can be used to only connect when metrics need to be flushed.
+	// Otherwise you might get failures if the name resolution fails at initialisation.
+	if !c.lazyConnect {
+		var err error
+		c.w, err = dialTimeout(c.network, c.addr, 5*time.Second)
+		if err != nil {
+			return c, err
+		}
 	}
 
 	if c.flushPeriod > 0 {
@@ -226,13 +235,27 @@ func (c *conn) flush(n int) {
 		n = len(c.buf)
 	}
 
-	// Trim the last \n, StatsD does not like it.
-	_, err := c.w.Write(c.buf[:n-1])
+	var err error
+	if c.w == nil {
+		c.w, err = dialTimeout(c.network, c.addr, 5*time.Second)
+	}
+	if c.w != nil {
+		_, err = c.w.Write(c.buf[:n-1])
+	}
 	c.handleError(err)
 	if n < len(c.buf) {
 		copy(c.buf, c.buf[n:])
 	}
 	c.buf = c.buf[:len(c.buf)-n]
+
+	c.flushCount++
+	if c.flushesBetweenReconnect > 0 && c.flushCount > c.flushesBetweenReconnect {
+		if c.w != nil {
+			c.handleError(c.w.Close())
+			c.w = nil
+		}
+		c.flushCount = 0
+	}
 }
 
 func (c *conn) handleError(err error) {

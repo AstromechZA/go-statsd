@@ -16,8 +16,8 @@ client.
 - Fast and GC-friendly: all functions for sending metrics do not allocate
 - Efficient: metrics are buffered by default
 - Simple and clean API
-- 100% test coverage
 - An annoying hyphen in the name
+- Options for lazy connection and regular DNS/connection re-resolving.
 
 ## Usage
 

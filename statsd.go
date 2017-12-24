@@ -11,6 +11,15 @@ type Client struct {
 	tags   string
 }
 
+// DefaultFlashPeriod is how often the buffer is flushed
+const DefaultFlashPeriod = 100 * time.Millisecond
+
+// DefaultMaxPackageSize must match the network MTU : Ethernet MTU - IPv6 Header - TCP Header = 1500 - 40 - 20 = 1440
+const DefaultMaxPackageSize = 1440
+
+// DefaultAddress is the default statsd receiver
+const DefaultAddress = "localhost:8125"
+
 // New returns a new Client.
 func New(opts ...Option) (*Client, error) {
 	// The default configuration.
@@ -19,11 +28,10 @@ func New(opts ...Option) (*Client, error) {
 			Rate: 1,
 		},
 		Conn: connConfig{
-			Addr:        "localhost:8125",
-			FlushPeriod: 100 * time.Millisecond,
+			Addr:        DefaultAddress,
+			FlushPeriod: DefaultFlashPeriod,
 			// Worst-case scenario:
-			// Ethernet MTU - IPv6 Header - TCP Header = 1500 - 40 - 20 = 1440
-			MaxPacketSize: 1440,
+			MaxPacketSize: DefaultMaxPackageSize,
 			Network:       "udp",
 		},
 	}
@@ -166,7 +174,9 @@ func (c *Client) Close() {
 	}
 	c.conn.mu.Lock()
 	c.conn.flush(0)
-	c.conn.handleError(c.conn.w.Close())
+	if c.conn.w != nil {
+		c.conn.handleError(c.conn.w.Close())
+	}
 	c.conn.closed = true
 	c.conn.mu.Unlock()
 }

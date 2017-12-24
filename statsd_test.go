@@ -488,6 +488,8 @@ func testNetwork(t *testing.T, network string) {
 		Address(server.addr),
 		Network(network),
 		ErrorHandler(expectNoError(t)),
+		LazyConnect(),
+		FlushesBetweenReconnect(1),
 	)
 	if err != nil {
 		t.Fatalf("New: %v", err)

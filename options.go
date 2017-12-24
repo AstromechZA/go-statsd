@@ -19,12 +19,14 @@ type clientConfig struct {
 }
 
 type connConfig struct {
-	Addr          string
-	ErrorHandler  func(error)
-	FlushPeriod   time.Duration
-	MaxPacketSize int
-	Network       string
-	TagFormat     TagFormat
+	Addr                    string
+	ErrorHandler            func(error)
+	FlushPeriod             time.Duration
+	MaxPacketSize           int
+	Network                 string
+	TagFormat               TagFormat
+	LazyConnect             bool
+	FlushesBetweenReconnect int
 }
 
 // An Option represents an option for a Client. It must be used as an
@@ -33,7 +35,7 @@ type Option func(*config)
 
 // Address sets the address of the StatsD daemon.
 //
-// By default, ":8125" is used. This option is ignored in Client.Clone().
+// By default, "localhost:8125" is used. This option is ignored in Client.Clone().
 func Address(addr string) Option {
 	return Option(func(c *config) {
 		c.Conn.Addr = addr
@@ -110,6 +112,27 @@ func SampleRate(rate float32) Option {
 func Prefix(p string) Option {
 	return Option(func(c *config) {
 		c.Client.Prefix += strings.TrimSuffix(p, ".") + "."
+	})
+}
+
+// LazyConnect allows the connection to be made only at flush time
+//
+// This can be useful to avoid unecessary errors at initialisation time if the statsd
+// server is not up or cannot be resolved.
+func LazyConnect() Option {
+	return Option(func(c *config) {
+		c.Conn.LazyConnect = true
+	})
+}
+
+// FlushesBetweenReconnect allows the connection to be torn down after N flush periods.
+//
+// This is very useful in environments where the statsd server can move around, go up and down,
+// or in general be unstable. You don't want that to prevent your service from sending metrics
+// for the rest of time.
+func FlushesBetweenReconnect(n int) Option {
+	return Option(func(c *config) {
+		c.Conn.FlushesBetweenReconnect = n
 	})
 }
 
